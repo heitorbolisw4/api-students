@@ -1,30 +1,64 @@
 package main
 
 import (
-  "github.com/labstack/echo/v5"
-  "github.com/labstack/echo/v5/middleware"
-  "log/slog"
-  "net/http"
+	"fmt"
+	"log/slog"
+	"net/http"
+
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 )
 
 func main() {
-  // Echo instance
-  e := echo.New()
+	// Echo instance
+	e := echo.New()
 
-  // Middleware
-  e.Use(middleware.RequestLogger()) // use the RequestLogger middleware with slog logger
-  e.Use(middleware.Recover())       // recover panics as errors for proper error handling
+	// Middleware
+	e.Use(middleware.RequestLogger()) // use the RequestLogger middleware with slog logger
+	e.Use(middleware.Recover())       // recover panics as errors for proper error handling
 
-  // Routes
-  e.GET("/students", getStudents)
+	// Routes
+	e.GET("/students", getStudents)
+	e.POST("/students", createStudent)
+	e.GET("/students/:id", getStudent)
+	e.PUT("/students/:id", updateStudent)
+	e.DELETE("/students/:id", deleteStudent)
 
-  // Start server
-  if err := e.Start(":8081"); err != nil {
-    slog.Error("failed to start server", "error", err)
-  }
+	// GET "/students" - List of all students
+	// POST "/students" - Create Student
+	// GET "/students/:id" - Get student by id
+	// PUT "/students/:id" - Update student
+	// DELETE "/students/:id" - Delete student
+
+	// Start server
+	if err := e.Start(":8081"); err != nil {
+		slog.Error("failed to start server", "error", err)
+	}
 }
 
 // Handler
 func getStudents(c *echo.Context) error {
-  return c.String(http.StatusOK, "List of all students")
+	return c.String(http.StatusOK, "List of all students")
+}
+
+func createStudent(c *echo.Context) error {
+	return c.String(http.StatusOK, "Create student")
+}
+
+func getStudent(c *echo.Context) error {
+	id := c.Param("id")
+	getStud := fmt.Sprintf("Get %s student", id)
+	return c.String(http.StatusOK, getStud)
+}
+
+func updateStudent(c *echo.Context) error {
+	id := c.Param("id")
+	updateStud := fmt.Sprintf("Update %s student", id)
+	return c.String(http.StatusOK, updateStud)
+}
+
+func deleteStudent(c *echo.Context) error {
+	id := c.Param("id")
+	deleteStud := fmt.Sprintf("Delete %s student", id)
+	return c.String(http.StatusOK, deleteStud)
 }
