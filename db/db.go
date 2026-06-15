@@ -1,20 +1,11 @@
 package db
 
 import (
+	"github.com/heitorbolisw4/api-students/schemas"
 	"github.com/rs/zerolog/log"
-
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
-
-type Student struct {
-	gorm.Model
-	Name     string `json:"name"`
-	Cpf      string `json:"cpf"`
-	Mail     string `json:"mail"`
-	Age      int    `json:"age"`
-	IsActive bool   `json:"isActive"`
-}
 
 type StudentHandler struct {
 	DB *gorm.DB
@@ -26,7 +17,7 @@ func Init() *gorm.DB {
 	if err != nil {
 		log.Error().Msg("Failed to connect to the database.")
 	}
-	db.AutoMigrate(&Student{})
+	db.AutoMigrate(&schemas.Student{})
 
 	return db
 
@@ -36,7 +27,7 @@ func NewStudentHandler(db *gorm.DB) *StudentHandler {
 	return &StudentHandler{DB: db}
 }
 
-func (s *StudentHandler) AddStudent(student Student) error {
+func (s *StudentHandler) AddStudent(student schemas.Student) error {
 	db := Init()
 
 	if result := db.Create(&student); result.Error != nil {
@@ -48,22 +39,26 @@ func (s *StudentHandler) AddStudent(student Student) error {
 	return nil
 }
 
-func (s *StudentHandler) GetStudents() ([]Student, error) {
+func (s *StudentHandler) GetStudents() ([]schemas.Student, error) {
 
-	students := []Student{}
+	students := []schemas.Student{}
 
 	err := s.DB.Find(&students).Error
 
 	return students, err
 }
 
-func (s *StudentHandler) GetStudent(id int) (Student, error) {
-	var student Student
+func (s *StudentHandler) GetStudent(id int) (schemas.Student, error) {
+	var student schemas.Student
 
 	err := s.DB.First(&student, id)
 	return student, err.Error
 }
 
-func (s *StudentHandler) UpdateStudent(updateStudent Student) error {
+func (s *StudentHandler) UpdateStudent(updateStudent schemas.Student) error {
 	return s.DB.Save(&updateStudent).Error
+}
+
+func (s *StudentHandler) DeleteStudent(student schemas.Student) error {
+	return s.DB.Delete(&student).Error
 }
