@@ -17,6 +17,10 @@ type Student struct {
 	IsActive bool   `json:"isActive"`
 }
 
+type StudentHandler struct {
+	DB *gorm.DB
+}
+
 func Init() *gorm.DB {
 	db, err := gorm.Open(sqlite.Open("student.db"), &gorm.Config{})
 
@@ -29,7 +33,11 @@ func Init() *gorm.DB {
 
 }
 
-func AddStudent(student Student) error {
+func NewStudentHandler(db *gorm.DB) *StudentHandler {
+	return &StudentHandler{DB: db}
+}
+
+func (s *StudentHandler) AddStudent(student Student) error {
 	db := Init()
 
 	if result := db.Create(&student); result.Error != nil {
@@ -40,12 +48,11 @@ func AddStudent(student Student) error {
 	return nil
 }
 
-func GetStudents() ([]Student, error) {
+func (s *StudentHandler) GetStudents() ([]Student, error) {
 
 	students := []Student{}
-	db := Init()
 
-	err := db.Find(&students).Error
+	err := s.DB.Find(&students).Error
 
 	return students, err
 }
