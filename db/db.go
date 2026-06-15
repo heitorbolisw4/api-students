@@ -1,8 +1,7 @@
 package db
 
 import (
-	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -25,7 +24,7 @@ func Init() *gorm.DB {
 	db, err := gorm.Open(sqlite.Open("student.db"), &gorm.Config{})
 
 	if err != nil {
-		log.Fatal(err)
+		log.Error().Msg("Failed to connect to the database.")
 	}
 	db.AutoMigrate(&Student{})
 
@@ -41,10 +40,11 @@ func (s *StudentHandler) AddStudent(student Student) error {
 	db := Init()
 
 	if result := db.Create(&student); result.Error != nil {
+		log.Error().Msg("Failed to create the student!")
 		return result.Error
 	}
 
-	fmt.Println("Create Student!")
+	log.Info().Msg("Create Student Ok!")
 	return nil
 }
 
@@ -55,4 +55,14 @@ func (s *StudentHandler) GetStudents() ([]Student, error) {
 	err := s.DB.Find(&students).Error
 
 	return students, err
+}
+
+func (s *StudentHandler) GetStudent(id int) (Student, error) {
+	var student Student
+
+	err := s.DB.First(&student, id)
+
+	//err := s.DB.Find(&students).Error
+
+	return student, err.Error
 }
